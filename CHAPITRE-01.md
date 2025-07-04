@@ -81,7 +81,10 @@ On l’oppose à un système de production : ici, **tout accès est considéré 
 1. Préparer une VM Debian/Ubuntu à jour (ou WSL2 si besoin)
 2. Installer `honeyd` ou `snare`
 
- ----
+
+----
+Installer Snare :  https://snare.readthedocs.io/en/latest/quick-start.html
+----
 Sur **Ubuntu 22.04+**, le paquet `honeyd` **n'existe plus dans les dépôts officiels**, mais tu peux l’installer **manuellement en le compilant depuis les sources**.
 
 
