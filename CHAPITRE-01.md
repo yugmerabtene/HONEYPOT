@@ -81,9 +81,102 @@ On l’oppose à un système de production : ici, **tout accès est considéré 
 1. Préparer une VM Debian/Ubuntu à jour (ou WSL2 si besoin)
 2. Installer `honeyd` ou `snare`
 
-   ```bash
-   sudo apt install honeyd
-   ```
+ ----
+Sur **Ubuntu 22.04+**, le paquet `honeyd` **n'existe plus dans les dépôts officiels**, mais tu peux l’installer **manuellement en le compilant depuis les sources**.
+
+
+# INSTALLATION DE HONEYD SUR UBUNTU 22.04
+
+---
+
+## 1. Prérequis
+
+Ouvre un terminal et installe les dépendances nécessaires :
+
+```bash
+sudo apt update
+sudo apt install -y git autoconf libtool libevent-dev libpcap-dev \
+libdnet-dev bison flex libconfig-dev libglib2.0-dev make g++ zlib1g-dev
+```
+
+---
+
+## 2. Télécharger et compiler `libdnet` corrigé
+
+La version officielle de `libdnet` pose problème sur Ubuntu > 20.04. On utilise un fork corrigé.
+
+```bash
+cd /usr/local/src
+sudo git clone https://github.com/dugsong/libdnet.git
+cd libdnet
+sudo ./configure
+sudo make
+sudo make install
+sudo ldconfig
+```
+
+---
+
+## 3. Télécharger et compiler Honeyd
+
+```bash
+cd /usr/local/src
+sudo git clone https://github.com/DataSoft/Honeyd.git
+cd Honeyd
+sudo ./configure
+sudo make
+sudo make install
+```
+
+---
+
+## 4. Vérification
+
+Tape simplement :
+
+```bash
+honeyd -v
+```
+
+Tu devrais voir s'afficher :
+
+```text
+Honeyd version 1.6c
+```
+
+---
+
+## 5. Exemple de configuration simple
+
+Créer un fichier `honeyd.conf` :
+
+```ini
+create default
+set default personality "Linux 3.10"
+set default default tcp action reset
+add default tcp port 22 open
+add default tcp port 80 open
+```
+
+Puis exécuter Honeyd avec une IP virtuelle (adapter à ton réseau) :
+
+```bash
+sudo honeyd -d -f honeyd.conf -i eth0 192.168.1.100
+```
+
+---
+
+## 6. Vérification avec `nmap` depuis une autre machine
+
+```bash
+nmap -sS -Pn 192.168.1.100
+```
+
+Tu devrais voir les ports 22 et 80 "ouverts", mais simulés.
+
+---
+
+ ----
 3. Configurer un service fictif sur le port 22 (ou 80, selon le besoin)
    Exemple `honeyd.conf` :
 
